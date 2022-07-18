@@ -8,6 +8,8 @@ use App\Http\Controllers\AlatRuanganController;
 use App\Http\Controllers\JadwalInspeksiController;
 use App\Http\Controllers\JadwalKalibrasiController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PerbaikanController;
+use App\Http\Controllers\ReportController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -40,6 +42,10 @@ Route::group(['middleware' => ['auth']], function(){
         Route::get('alatruangan', [AlatRuanganController::class, 'table']);
         Route::get('inspeksi', [JadwalInspeksiController::class, 'table']);
         Route::get('kalibrasi', [JadwalKalibrasiController::class, 'table']);
+        Route::get('perbaikan', [PerbaikanController::class, 'table']);
+
+        Route::get('report/kerusakan', [ReportController::class, 'tableKerusakan']);
+        Route::get('report/kalibrasi', [ReportController::class, 'tableKalibrasi']);
     });
 
     Route::resource('alat', AlatController::class);
@@ -47,6 +53,8 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('ruangankategori', KategoriRuanganController::class);
     Route::resource('alatruangan', AlatRuanganController::class);
     Route::prefix('alatruangan')->group(function(){
+        Route::get('alat/{id}', [AlatRuanganController::class, 'alat']);
+        Route::get('ruangan/list', [AlatRuanganController::class, 'ruangan']);
         Route::post('create/schedule/inspection/{id}', [AlatRuanganController::class, 'createInspection']);
         Route::post('create/schedule/calibration', [AlatRuanganController::class, 'createCalibration']);
     });
@@ -60,6 +68,14 @@ Route::group(['middleware' => ['auth']], function(){
     Route::prefix('kalibrasi')->group(function(){
         Route::post('create/hasil', [JadwalKalibrasiController::class, 'createHasil']);
     });
+
+    Route::resource('perbaikan', PerbaikanController::class);
+    Route::prefix('perbaikan')->group(function(){
+        Route::post('simpan-perbaikan/{id}', [PerbaikanController::class, 'simpanPerbaikan']);
+    });
+
+    Route::get('report-kerusakan/', [ReportController::class, 'reportKerusakan']);
+    Route::get('report-kalibrasi/', [ReportController::class, 'reportKalibrasi']);
 
     Route::prefix('rest')->group(function(){
         Route::prefix('ruangankategori')->group(function(){
