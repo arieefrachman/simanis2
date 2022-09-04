@@ -68,21 +68,22 @@
 
 @section('script')
     <script>
+        let table = $('#t-ruangan').DataTable({
+            processing: true,
+            serverSide: true,
+            scrollX: true,
+            ajax: {
+                url: `table/ruangankategori`,
+                type: 'GET'
+            },
+            columns: [
+                {data: 'nama', name: 'nama', width: '300px'},
+                {data: 'alias', name: 'alias', width: '230px'},
+                {data: 'action', name: 'action'}
+            ]
+        });
         $(document).ready(() => {
-            let table = $('#t-ruangan').DataTable({
-                processing: true,
-                serverSide: true,
-                scrollX: true,
-                ajax: {
-                    url: `table/ruangankategori`,
-                    type: 'GET'
-                },
-                columns: [
-                    {data: 'nama', name: 'nama', width: '300px'},
-                    {data: 'alias', name: 'alias', width: '230px'},
-                    {data: 'action', name: 'action'}
-                ]
-            });
+
 
 
             $(`#btn-simpan-modal`).click(() => {
@@ -95,6 +96,63 @@
                 editDataModal('rest/ruangankategori/update', table, formData);
             });
         });
+
+        const hapus = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `ruangankategori/${id}`,
+                method: 'GET',
+                success: (res) => {
+                    Swal.fire({
+                        title: 'Apakah anda yakin?',
+                        text: `${res.nama}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batalkan'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.LoadingOverlay("show");
+                            $.ajax({
+                                url: `rest/ruangankategori/delete/${id}`,
+                                method: 'POST',
+                                statusCode:{
+                                    500: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: `${errMsg.message}`,
+                                        });
+                                    },
+                                    409: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: `Gagal menghapus`,
+                                            text: `${errMsg.message}`
+                                        });
+                                    }
+                                },
+                                success: (res) => {
+                                    $.LoadingOverlay("hide");
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'Data telah dihapus',
+                                        'success'
+                                    );
+                                    table.ajax.reload();
+                                }
+                            });
+                        }
+                    });
+                    $.LoadingOverlay("hide");
+                }
+            });
+        };
 
         const edit = (id) => {
             $.LoadingOverlay("show");

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Repositories\RuanganRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Yajra\DataTables\Facades\DataTables;
 
 class RuanganController extends Controller
@@ -22,7 +23,8 @@ class RuanganController extends Controller
 
     public function table(){
         return DataTables::of($this->repository->all())->addColumn('action', function ($m){
-            return '<button type="button" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Ubah" onclick="edit('.$m->id.')"><i class="fas fa-edit"></i></button>';
+            return '<button type="button" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Ubah" onclick="edit('.$m->id.')"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Hapus" onclick="hapus('.$m->id.')"><i class="fas fa-trash"></i></button>';
         })
             ->make(true);
     }
@@ -65,6 +67,18 @@ class RuanganController extends Controller
         try{
             return response()->json($this->repository->get($id));
         }catch (\Exception $e){
+            return response()->json(['message' => $e], 500);
+        }
+    }
+
+    public function deleteRest($id){
+        try{
+            $this->repository->delete($id);
+            return response()->json(['msg' => 'Success'], 200);
+        }catch (\Exception $e){
+            if ($e instanceof ConflictHttpException){
+                return response()->json(['message' => 'Data ruangan sudah terasosiasi dengan alat dan tidak dapat dihapus'], 409);
+            }
             return response()->json(['message' => $e], 500);
         }
     }

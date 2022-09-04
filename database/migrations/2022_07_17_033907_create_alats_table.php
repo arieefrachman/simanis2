@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('frek_inspeksi')->nullable(true);
             $table->integer('frek_kalibrasi')->nullable(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

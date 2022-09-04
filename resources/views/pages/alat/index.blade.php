@@ -66,28 +66,29 @@
 
 @section('script')
     <script>
+        let table = $('#t-alat').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 6,
+            scrollX: true,
+            ajax: {
+                url: `table/alat`,
+                type: 'GET'
+            },
+            columns: [
+                {data: 'kode', name: 'kode'},
+                {data: 'nama', name: 'nama', width: "200px"},
+                {data: 'type', name: 'type', width: "100px"},
+                {data: 'tahun_pengadaan', name: 'tahun_pengadaan', width: "100px"},
+                {data: 'harga_formatted', name: 'harga_formatted', width: "250px"},
+                {data: 'frek_kalibrasi', name: 'frek_kalibrasi'},
+                {data: 'frek_inspeksi', name: 'frek_inspeksi'},
+                {data: 'usia_teknis', name: 'usia_teknis'},
+                {data: 'action', name: 'action'},
+            ],
+        });
         $(document).ready(() => {
-            let table = $('#t-alat').DataTable({
-                processing: true,
-                serverSide: true,
-                pageLength: 6,
-                scrollX: true,
-                ajax: {
-                    url: `table/alat`,
-                    type: 'GET'
-                },
-                columns: [
-                    {data: 'kode', name: 'kode'},
-                    {data: 'nama', name: 'nama', width: "200px"},
-                    {data: 'type', name: 'type', width: "100px"},
-                    {data: 'tahun_pengadaan', name: 'tahun_pengadaan', width: "100px"},
-                    {data: 'harga_formatted', name: 'harga_formatted', width: "250px"},
-                    {data: 'frek_kalibrasi', name: 'frek_kalibrasi'},
-                    {data: 'frek_inspeksi', name: 'frek_inspeksi'},
-                    {data: 'usia_teknis', name: 'usia_teknis'},
-                    {data: 'action', name: 'action'},
-                ],
-            });
+
 
             $('.money').mask('000.000.000.000.000.000', {reverse: true});
 
@@ -101,6 +102,63 @@
                 editDataModal('rest/alat/update', table, formData);
             });
         });
+
+        const hapus = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `alat/${id}`,
+                method: 'GET',
+                success: (res) => {
+                    Swal.fire({
+                        title: 'Apakah anda yakin?',
+                        text: `${res.nama}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batalkan'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.LoadingOverlay("show");
+                            $.ajax({
+                                url: `rest/alat/delete/${id}`,
+                                method: 'POST',
+                                statusCode:{
+                                    500: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: `${errMsg.message}`,
+                                        });
+                                    },
+                                    409: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: `Gagal menghapus`,
+                                            text: `${errMsg.message}`
+                                        });
+                                    }
+                                },
+                                success: (res) => {
+                                    $.LoadingOverlay("hide");
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'Data telah dihapus',
+                                        'success'
+                                    );
+                                    table.ajax.reload();
+                                }
+                            });
+                        }
+                    });
+                    $.LoadingOverlay("hide");
+                }
+            });
+        };
 
         const edit = (id) => {
             $.LoadingOverlay("show");

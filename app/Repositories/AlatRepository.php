@@ -5,14 +5,18 @@ namespace App\Repositories;
 
 
 use App\Models\Alat;
+use App\Models\AlatRuangan;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class AlatRepository implements IRepository
 {
     protected $model;
+    protected $modelAlatRuangan;
 
-    public function __construct(Alat $model)
+    public function __construct(Alat $model, AlatRuangan $modelAlatRuangan)
     {
         $this->model = $model;
+        $this->modelAlatRuangan = $modelAlatRuangan;
     }
 
     public function all()
@@ -49,7 +53,16 @@ class AlatRepository implements IRepository
 
     public function delete($id)
     {
-        // TODO: Implement delete() method.
+        try {
+            $m = $this->model->find($id);
+
+            if($this->modelAlatRuangan->where('alat_id', $m->id)->exists()){
+                throw new ConflictHttpException('');
+            }
+            $m->delete();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 
     public function update($id, $data)

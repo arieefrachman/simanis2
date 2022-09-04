@@ -80,14 +80,17 @@ Route::group(['middleware' => ['auth']], function(){
     Route::prefix('rest')->group(function(){
             Route::prefix('ruangankategori')->group(function(){
                 Route::post('/update', [KategoriRuanganController::class, 'updateRest']);
+                Route::post('/delete/{id}', [KategoriRuanganController::class, 'deleteRest']);
                 Route::get('/', [KategoriRuanganController::class, 'getRest']);
         });
             Route::prefix('alat')->group(function(){
                 Route::post('/update', [AlatController::class, 'updateRest']);
+                Route::post('/delete/{id}', [AlatController::class, 'deleteRest']);
                 Route::get('/', [AlatController::class, 'getRest']);
         });
             Route::prefix('ruangan')->group(function(){
                 Route::post('/update', [RuanganController::class, 'updateRest']);
+                Route::post('/delete/{id}', [RuanganController::class, 'deleteRest']);
                 Route::get( '/', [RuanganController::class, 'getRest']);
         });
     });

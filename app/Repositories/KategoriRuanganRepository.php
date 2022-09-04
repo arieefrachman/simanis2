@@ -5,15 +5,19 @@ namespace App\Repositories;
 
 
 use App\Models\KategoriRuangan;
+use App\Models\Ruangan;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class KategoriRuanganRepository implements IRepository
 {
 
     protected $model;
+    protected $modelRuangan;
 
-    public function __construct(KategoriRuangan $model)
+    public function __construct(KategoriRuangan $model, Ruangan $modelRuangan)
     {
         $this->model = $model;
+        $this->modelRuangan = $modelRuangan;
     }
 
     public function all()
@@ -44,7 +48,16 @@ class KategoriRuanganRepository implements IRepository
 
     public function delete($id)
     {
-        // TODO: Implement delete() method.
+        try {
+            $m = $this->model->find($id);
+
+            if($this->modelRuangan->where('kategori_ruangan_id', $m->id)->exists()){
+                throw new ConflictHttpException('');
+            }
+            $m->delete();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 
     public function update($id, $data)

@@ -70,28 +70,28 @@
 
 @section('script')
     <script>
-        $(document).ready(() => {
-            let table = $('#t-ruangan').DataTable({
-                processing: true,
-                serverSide: true,
-                scrollX: true,
-                ajax: {
-                    url: `table/ruangan`,
-                    type: 'GET'
-                },
-                columns: [
-                    {data: 'nama', name: 'nama', width: '300px'},
-                    {data: 'alias', name: 'alias'},
-                    {data: 'pic', name: 'pic', width: '200px'},
-                    {data: 'kategori.nama', name: 'kategori.nama'},
-                    {data: 'action', name: 'action'}
-                ],
-                rowGroup: {
-                    dataSrc: 'kategori.nama'
-                },
-                order: [[3, 'asc']],
-            });
+        let table = $('#t-ruangan').DataTable({
+            processing: true,
+            serverSide: true,
+            scrollX: true,
+            ajax: {
+                url: `table/ruangan`,
+                type: 'GET'
+            },
+            columns: [
+                {data: 'nama', name: 'nama', width: '300px'},
+                {data: 'alias', name: 'alias'},
+                {data: 'pic', name: 'pic', width: '200px'},
+                {data: 'kategori.nama', name: 'kategori.nama'},
+                {data: 'action', name: 'action', width: '100px'}
+            ],
+            rowGroup: {
+                dataSrc: 'kategori.nama'
+            },
+            order: [[3, 'asc']],
+        });
 
+        $(document).ready(() => {
             $.ajax({
                 url: `rest/ruangankategori`,
                 method: 'GET',
@@ -115,6 +115,62 @@
             });
 
         });
+        const hapus = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `ruangan/${id}`,
+                method: 'GET',
+                success: (res) => {
+                    Swal.fire({
+                        title: 'Apakah anda yakin?',
+                        text: `${res.nama}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batalkan'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.LoadingOverlay("show");
+                            $.ajax({
+                                url: `rest/ruangan/delete/${id}`,
+                                method: 'POST',
+                                statusCode:{
+                                    500: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: `${errMsg.message}`,
+                                        });
+                                    },
+                                    409: (err) => {
+                                        let errMsg = JSON.parse(err.responseText);
+                                        $.LoadingOverlay("hide");
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: `Gagal menghapus`,
+                                            text: `${errMsg.message}`
+                                        });
+                                    }
+                                },
+                                success: (res) => {
+                                    $.LoadingOverlay("hide");
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'Data telah dihapus',
+                                        'success'
+                                    );
+                                    table.ajax.reload();
+                                }
+                            });
+                        }
+                    });
+                    $.LoadingOverlay("hide");
+                }
+            });
+        };
         const edit = (id) => {
             $.LoadingOverlay("show");
             $.ajax({

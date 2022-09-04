@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama')->nullable(false);
             $table->string('alias')->nullable(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
