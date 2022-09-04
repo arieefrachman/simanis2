@@ -22,7 +22,27 @@ class AlatController extends Controller
 
     public function table(){
         try{
-            return DataTables::of($this->repository->all())->make(true);
+            return DataTables::of($this->repository->all())
+                ->addColumn('action', function ($m){
+                    return '<button type="button" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Ubah" onclick="edit('.$m->id.')"><i class="fas fa-edit"></i></button>';
+                })->addColumn('frek_inspeksi', function ($m){
+                    switch ($m->frek_inspeksi){
+                        case 'A':
+                            return 'Annual';
+                            break;
+                        case 'S':
+                            return 'Semi-annual';
+                            break;
+                        case 'T':
+                            return 'Three-yearly';
+                            break;
+
+                    }
+                })->addColumn('frek_kalibrasi', function ($m){
+                    return $m->frek_kalibrasi.' Tahun';
+                })->addColumn('usia_teknis', function ($m){
+                    return $m->usia_teknis.' Tahun';
+                })->make(true);
         }catch (\Exception $exception){
             return response()->json($exception, 500);
         }
@@ -42,6 +62,27 @@ class AlatController extends Controller
         }catch (\Exception $exception){
             return response()->json($exception, 500);
         }
+    }
+
+    public function show($id){
+        try{
+            return response()->json($this->repository->get($id));
+        }catch (\Exception $e){
+            return response()->json(['message' => $e], 500);
+        }
+    }
+
+    public function updateRest(Request $request){
+        $validator = Validator::make($request->all(), [
+            'kode' => 'required|numeric',
+            'nama_alat' => 'required',
+            'thn_pengadaan' => 'required',
+        ]);
+
+        if ($validator->fails())
+            return response()->json($validator->errors(), 400);
+        $this->repository->update($request->id, $request);
+        return response()->json(['msg' => 'Success Update'], 200);
     }
 
     public function getRest(){

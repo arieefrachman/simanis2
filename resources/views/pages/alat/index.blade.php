@@ -17,15 +17,6 @@
                                        placeholder="Alat..">
                             </div>
                         </div>
-                        {{--<div class="form-group row">
-                            <div class="col-sm-12">
-                                <select class="custom-select" id="inputGroupSelect01">
-                                    <option selected>Kategori...</option>
-                                    <option value="1">Instalasi Laboratorium</option>
-                                    <option value="2">Instalasi Radiologi</option>
-                                </select>
-                            </div>
-                        </div>--}}
                         <button href="#" class="btn btn-primary btn-icon-split">
                                         <span class="icon text-white-50">
                                             <i class="fas fa-search"></i>
@@ -57,6 +48,10 @@
                                 <th>Type</th>
                                 <th>Tahun Pengadaan</th>
                                 <th>Harga</th>
+                                <th>Frekuensi Kalibrasi</th>
+                                <th>Frekuensi Inspeksi</th>
+                                <th>Usia Teknis</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -66,6 +61,7 @@
         </div>
     </div>
     @include('pages.alat.form')
+    @include('pages.alat.form-edit')
 @stop
 
 @section('script')
@@ -74,6 +70,7 @@
             let table = $('#t-alat').DataTable({
                 processing: true,
                 serverSide: true,
+                pageLength: 6,
                 scrollX: true,
                 ajax: {
                     url: `table/alat`,
@@ -85,6 +82,10 @@
                     {data: 'type', name: 'type', width: "100px"},
                     {data: 'tahun_pengadaan', name: 'tahun_pengadaan', width: "100px"},
                     {data: 'harga_formatted', name: 'harga_formatted', width: "250px"},
+                    {data: 'frek_kalibrasi', name: 'frek_kalibrasi'},
+                    {data: 'frek_inspeksi', name: 'frek_inspeksi'},
+                    {data: 'usia_teknis', name: 'usia_teknis'},
+                    {data: 'action', name: 'action'},
                 ],
             });
 
@@ -93,8 +94,35 @@
             $(`#btn-simpan-modal`).click(() => {
                 let formData = new FormData($('#modalForm')[0]);
                 addDataModal('alat', table, formData);
-            })
+            });
+
+            $(`#btn-update-modal`).click(() => {
+                let formData = new FormData($('#modalFormEdit')[0]);
+                editDataModal('rest/alat/update', table, formData);
+            });
         });
+
+        const edit = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `alat/${id}`,
+                method: 'GET',
+                success: (res) => {
+
+                    $("#edit-kode").val(res.kode);
+                    $('#edit-nama_alat').val(res.nama);
+                    $('#edit-type').val(res.type);
+                    $('#edit-thn_pengadaan').val(res.tahun_pengadaan);
+                    $('#edit-harga').val(res.harga);
+                    $('#edit-usia_teknis').val(res.usia_teknis);
+                    $('#edit-frek_inspeksi').val(res.frek_inspeksi);
+                    $('#edit-frek_kalibrasi').val(res.frek_kalibrasi);
+                    $('#id').val(res.id);
+                    $.LoadingOverlay("hide");
+                }
+            });
+            $('#formModalEdit').modal({backdrop: 'static', keyboard: false});
+        }
     </script>
 @stop
 

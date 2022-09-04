@@ -53,6 +53,7 @@
                             <tr>
                                 <th>Ruangan Kategori</th>
                                 <th>Alias</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -62,6 +63,7 @@
         </div>
     </div>
     @include('pages.kategoriruangan.form')
+    @include('pages.kategoriruangan.form-edit')
 @stop
 
 @section('script')
@@ -78,6 +80,7 @@
                 columns: [
                     {data: 'nama', name: 'nama', width: '300px'},
                     {data: 'alias', name: 'alias', width: '230px'},
+                    {data: 'action', name: 'action'}
                 ]
             });
 
@@ -86,7 +89,28 @@
                 let formData = new FormData($('#modalForm')[0]);
                 addDataModal('ruangankategori', table, formData);
             })
+
+            $(`#btn-update-modal`).click(() => {
+                let formData = new FormData($('#modalFormEdit')[0]);
+                editDataModal('rest/ruangankategori/update', table, formData);
+            });
         });
+
+        const edit = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `ruangankategori/${id}`,
+                method: 'GET',
+                success: (res) => {
+
+                    $("#edit-nama_kategori_ruangan").val(res.nama);
+                    $('#edit-alias').val(res.alias);
+                    $('#id').val(res.id);
+                    $.LoadingOverlay("hide");
+                }
+            });
+            $('#formModalEdit').modal({backdrop: 'static', keyboard: false});
+        }
 
     </script>
 @stop

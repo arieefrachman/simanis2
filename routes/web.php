@@ -78,14 +78,17 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('report-kalibrasi/', [ReportController::class, 'reportKalibrasi']);
 
     Route::prefix('rest')->group(function(){
-        Route::prefix('ruangankategori')->group(function(){
-            Route::get('/', [KategoriRuanganController::class, 'getRest']);
+            Route::prefix('ruangankategori')->group(function(){
+                Route::post('/update', [KategoriRuanganController::class, 'updateRest']);
+                Route::get('/', [KategoriRuanganController::class, 'getRest']);
         });
-        Route::prefix('alat')->group(function(){
-            Route::get('/', [AlatController::class, 'getRest']);
+            Route::prefix('alat')->group(function(){
+                Route::post('/update', [AlatController::class, 'updateRest']);
+                Route::get('/', [AlatController::class, 'getRest']);
         });
-        Route::prefix('ruangan')->group(function(){
-            Route::get('/', [RuanganController::class, 'getRest']);
+            Route::prefix('ruangan')->group(function(){
+                Route::post('/update', [RuanganController::class, 'updateRest']);
+                Route::get( '/', [RuanganController::class, 'getRest']);
         });
     });
     Route::get('/', function () {

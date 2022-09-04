@@ -23,7 +23,11 @@ class KategoriRuanganRepository implements IRepository
 
     public function get($id)
     {
-        // TODO: Implement get() method.
+        try{
+            return $this->model->where('id', $id)->first();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 
     public function store($data)
@@ -45,6 +49,13 @@ class KategoriRuanganRepository implements IRepository
 
     public function update($id, $data)
     {
-        // TODO: Implement update() method.
+        try {
+            $m = $this->model->find($id);
+            $m->nama = $data['nama_kategori_ruangan'];
+            $m->alias = $data['alias'];
+            $m->save();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 }

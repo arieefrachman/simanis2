@@ -22,7 +22,11 @@ class AlatRepository implements IRepository
 
     public function get($id)
     {
-        // TODO: Implement delete() method.
+        try{
+            return $this->model->where('id', $id)->first();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 
     public function store($data)
@@ -50,7 +54,20 @@ class AlatRepository implements IRepository
 
     public function update($id, $data)
     {
-        // TODO: Implement update() method.
+        try{
+            $m = $this->model->find($id);
+            $m->kode = $data['kode'];
+            $m->nama = $data['nama_alat'];
+            $m->type = $data['type'];
+            $m->tahun_pengadaan = $data['thn_pengadaan'];
+            $m->harga = str_replace(".", "", $data['harga']);
+            $m->usia_teknis = $data['usia_teknis'];
+            $m->frek_inspeksi = $data['frek_inspeksi'];
+            $m->frek_kalibrasi = $data['frek_kalibrasi'];
+            $m->save();
+        }catch (\Exception $e){
+            throw $e;
+        }
     }
 
     public function getAlatLabel(){

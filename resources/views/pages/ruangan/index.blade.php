@@ -55,6 +55,7 @@
                                 <th>Alias</th>
                                 <th>PIC</th>
                                 <th>Kategori</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -64,6 +65,7 @@
         </div>
     </div>
     @include('pages.ruangan.form')
+    @include('pages.ruangan.form-edit')
 @stop
 
 @section('script')
@@ -81,7 +83,8 @@
                     {data: 'nama', name: 'nama', width: '300px'},
                     {data: 'alias', name: 'alias'},
                     {data: 'pic', name: 'pic', width: '200px'},
-                    {data: 'kategori.nama', name: 'kategori.nama'}
+                    {data: 'kategori.nama', name: 'kategori.nama'},
+                    {data: 'action', name: 'action'}
                 ],
                 rowGroup: {
                     dataSrc: 'kategori.nama'
@@ -93,7 +96,7 @@
                 url: `rest/ruangankategori`,
                 method: 'GET',
                 success: (res) => {
-                    let _items = `<option>Pilih kategori ruangan...</option>`;
+                    let _items;
                     $.each(res, (k,v) => {
                         _items+= `<option value=${v.id}>${v.nama}</option>`
                     });
@@ -105,8 +108,44 @@
                 let formData = new FormData($('#modalForm')[0]);
                 addDataModal('ruangan', table, formData);
             });
-        });
 
+            $(`#btn-update-modal`).click(() => {
+                let formData = new FormData($('#modalFormEdit')[0]);
+                editDataModal('rest/ruangan/update', table, formData);
+            });
+
+        });
+        const edit = (id) => {
+            $.LoadingOverlay("show");
+            $.ajax({
+                url: `ruangan/${id}`,
+                method: 'GET',
+                success: (res) => {
+
+                    $("#edit-nama_ruangan").val(res.nama);
+                    $("#edit-pic").val(res.pic);
+                    $.ajax({
+                        async: false,
+                        url: `rest/ruangankategori`,
+                        method: 'GET',
+                        success: (res) => {
+                            let _items;
+                            $.each(res, (k,v) => {
+                                _items+= `<option value=${v.id}>${v.nama}</option>`
+                            });
+                            $('#edit-ruangan_kategori_id').html(_items);
+                        }
+                    });
+
+                    $('#edit-ruangan_kategori_id').val(res.kategori_ruangan_id);
+                    $('#edit-alias').val(res.alias);
+                    $('#edit-keterangan').val(res.keterangan);
+                    $('#edit-id_ruangan').val(res.id);
+                    $.LoadingOverlay("hide");
+                }
+            });
+            $('#formModalEdit').modal({backdrop: 'static', keyboard: false});
+        }
     </script>
 @stop
 
